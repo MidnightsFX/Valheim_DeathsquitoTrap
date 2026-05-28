@@ -16,6 +16,7 @@ namespace DvergerSecretDefenses {
 
         public static ConfigEntry<float> ZapperLureRange;
         public static ConfigEntry<int> ZapperScanInterval;
+        public static ConfigEntry<int> ZapperShotInterval;
 
         public const string cfgFolder = "DvergerSecretDefenses";
 
@@ -38,6 +39,7 @@ namespace DvergerSecretDefenses {
 
             ZapperLureRange = BindServerConfig("Dverger Thundercage", "Lure Range", 150f, "Range at which the thundercage will lure deathsquitos", true);
             ZapperScanInterval = BindServerConfig("Dverger Thundercage", "Scan Interval", 20, "Interval that the thundercage will cause deathsquitos to move towards it.");
+            ZapperShotInterval = BindServerConfig("Dverger Thundercage", "Shot Interval", 3, "Number of seconds between shots from the trap.");
         }
 
         /// <summary>

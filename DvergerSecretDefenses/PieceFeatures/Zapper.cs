@@ -23,6 +23,7 @@ namespace DvergerSecretDefenses.PieceFeatures {
 
         // May need to be Zsynced
         private static List<Character> LuringTargets = new List<Character>();
+        private static double NextAvailableShotTime = 0f;
 
         public void Awake() {
             selfTarget = this.GetComponent<StaticTarget>();
@@ -60,15 +61,21 @@ namespace DvergerSecretDefenses.PieceFeatures {
                     if (target == null) { continue; }
                     // Kill nearby tracked creatures with lightning
                     float distance = Vector3.Distance(this.transform.position, target.gameObject.transform.position);
-                    Logger.LogDebug($"{target.name} distance {distance}");
+                    //Logger.LogDebug($"{target.name} distance {distance}");
                     if (distance < 10f) {
-                        Logger.LogDebug($"Shock-killer at {target.transform.position}");
+                        if (ZNet.instance.GetTimeSeconds() < NextAvailableShotTime) { continue; }
+
+                        Logger.LogDebug($"Shock-killer at {target}");
+                        // Visual at the thunderstone level
+                        UnityEngine.GameObject.Instantiate(lightningEffect, thunderStone.transform.position, thunderStone.transform.rotation);
                         // shoot projectile?
-                        ShootProjectile(target.transform.position);
+                        //ShootProjectile(target.transform.position);
 
                         // Instakill?
-                        //GameObject.Instantiate(lightningEffect, target.transform.position, Quaternion.identity);
-                        //target.Damage(lightningHit);
+                        GameObject.Instantiate(lightningEffect, target.transform.position, Quaternion.identity);
+                        target.Damage(lightningHit);
+
+                        NextAvailableShotTime = ZNet.instance.GetTimeSeconds() + ValConfig.ZapperShotInterval.Value;
                     }
                 }
             }
@@ -99,14 +106,13 @@ namespace DvergerSecretDefenses.PieceFeatures {
                     mai.m_lastKnownTargetPos = this.transform.position;
                     mai.m_beenAtLastPos = false;
                     mai.SetAggravated(true, BaseAI.AggravatedReason.Building);
+                    mai.SetAlerted(true);
                     LuringTargets.Add(character);
                 }
             }
         }
 
-        public void ShootProjectile(Vector3 target, float speed = 5f) {
-            // Visual at the thunderstone level
-            UnityEngine.GameObject.Instantiate(lightningEffect, thunderStone.transform.position, thunderStone.transform.rotation);
+        public void ShootProjectile(Vector3 target, float speed = 50f) {
 
             // Shot, spawned above the tower
             GameObject shot = UnityEngine.Object.Instantiate<GameObject>(lightningProjectile, shotSource.transform.position, shotSource.transform.rotation);
