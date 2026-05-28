@@ -33,7 +33,7 @@ namespace DvergerSecretDefenses
             Log = this.Logger;
             cfg = new ValConfig(Config);
 
-            EmbeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("DvergerSecretDefenses.Assets.vebundle", typeof(DvergerSecretDefenses).Assembly);
+            EmbeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("DvergerSecretDefenses.Assets.zapper_assets", typeof(DvergerSecretDefenses).Assembly);
 
             LocalizationLoader.AddLocalizations();
             AddPieces();

@@ -17,7 +17,7 @@ namespace DvergerSecretDefenses {
         public static ConfigEntry<float> ZapperLureRange;
         public static ConfigEntry<int> ZapperScanInterval;
 
-        public const string cfgFolder = "ValhallaEternal";
+        public const string cfgFolder = "DvergerSecretDefenses";
 
         public ValConfig(ConfigFile cf) {
             // ensure all the config values are created

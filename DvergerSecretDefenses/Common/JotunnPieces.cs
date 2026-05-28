@@ -32,7 +32,7 @@ namespace DvergerSecretDefenses.common {
             public ConfigEntry<string> Workbench { get; set; }
             public ConfigEntry<string> PieceCategory { get; set; }
             public ConfigEntry<string> PieceCost { get; set; }
-            public List<PieceCost> UpdatedCost { get; set; }
+            public List<PieceCost> UpdatedCost { get; set; } = new List<PieceCost>();
         }
 
         public class JotunnBuildPiece {
@@ -42,7 +42,7 @@ namespace DvergerSecretDefenses.common {
             public string Sprite { get; set; }
             public Piece.PieceCategory Category { get; set; } = Piece.PieceCategory.Misc;
             public string Workbench { get; set; } = "piece_workbench";
-            public List<PieceCost> PieceCost { get; set; }
+            public List<PieceCost> PieceCost { get; set; } = new List<PieceCost>();
 
             // Populated by in-game related runtime objects
             public LoadedGameObjects Objs { get; set; }
@@ -150,9 +150,9 @@ namespace DvergerSecretDefenses.common {
             string recipe_cfg_default = string.Join("|", raw_recipe_default);
             // Wire up the config and on-change for piece costs
             jbuildpiece.Cfgs.PieceCost = ValConfig.BindServerConfig($"{jbuildpiece.Name}", $"Building Cost", recipe_cfg_default, $"Cost to build. Find item ids: https://valheim.fandom.com/wiki/Item_IDs Format: resouce_id,amount,refund eg: Wood,8,true|LeatherScraps,4,false", advanced: true);
-            if (PieceRecipeConfigUpdater(jbuildpiece, jbuildpiece.Cfgs.PieceCost.Value, true) == false) {
+            if (PieceRecipeConfigUpdater(jbuildpiece, jbuildpiece.Cfgs.PieceCost.Value, false) == false) {
                 Logger.LogWarning($"{jbuildpiece.Name} has an invalid piece cost. The default will be used instead.");
-                PieceRecipeConfigUpdater(jbuildpiece, recipe_cfg_default, true);
+                PieceRecipeConfigUpdater(jbuildpiece, recipe_cfg_default, false);
             }
 
 
