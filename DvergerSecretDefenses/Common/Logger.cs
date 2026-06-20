@@ -28,7 +28,7 @@ namespace DvergerSecretDefenses {
 
         public static void LogDebug(string message) {
             if (Level >= LogLevel.Debug) {
-                DvergerSecretDefenses.Log.LogInfo(message);
+                DvergerSecretDefenses.Log.LogInfo("[DEBUG]" + message);
             }
         }
         public static void LogInfo(string message) {

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using static UnityEngine.UI.Image;
 
 namespace DvergerSecretDefenses.PieceFeatures {
     public class Zapper : MonoBehaviour {
@@ -17,13 +16,13 @@ namespace DvergerSecretDefenses.PieceFeatures {
         private GameObject lightningEffect;
         private GameObject lightningProjectile;
         private HitData lightningHit;
-        private GameObject shotSource;
-        private GameObject thunderStone;
         public ZNetView m_nview;
+        public GameObject m_shotSource;
+        public GameObject m_thunderstone;
 
         // May need to be Zsynced
-        private static List<Character> LuringTargets = new List<Character>();
-        private static double NextAvailableShotTime = 0f;
+        private List<Character> LuringTargets = new List<Character>();
+        private double NextAvailableShotTime = 0f;
 
         public void Awake() {
             selfTarget = this.GetComponent<StaticTarget>();
@@ -31,7 +30,7 @@ namespace DvergerSecretDefenses.PieceFeatures {
             lightningProjectile = PrefabManager.Instance.GetPrefab("staff_lightning_projectile");
 
             lightningHit = new HitData() {};
-            lightningHit.m_damage.m_lightning = 150f;
+            lightningHit.m_damage.m_lightning = ValConfig.ZapperDamage.Value;
             lightningHit.m_toolTier = 1;
             lightningHit.m_pushForce = 30f;
             lightningHit.m_backstabBonus = 2;
@@ -41,38 +40,49 @@ namespace DvergerSecretDefenses.PieceFeatures {
             lightningHit.m_skill = Skills.SkillType.ElementalMagic;
             lightningHit.m_itemWorldLevel = (byte)Game.m_worldLevel;
             lightningHit.m_hitType = HitData.HitType.Turret;
-
-            m_nview = this.GetComponent<ZNetView>();
-
-            shotSource = this.transform.Find("DvergerSecretDefenses/Shooter").gameObject;
-            thunderStone = this.transform.Find("DvergerSecretDefenses/ThunderRock").gameObject;
         }
 
         public void Update() {
             // This is to prevent the building piece from activating before it is placed
-            if (!this.m_nview.IsValid()) { return; }
-                
+            // And only runs the actual luring and damage loops inside whoever is the Zowner
+            if (m_nview.IsValid() == false || m_nview.IsOwner() == false) { return; }
+
 
             if (LuringTargets.Count > 0) {
-                // Remove dead targets
-                LuringTargets = LuringTargets.Where(x => x != null && x.GetZDOID() != null && x.GetZDOID().ID != 0L).ToList();
+                // Drop dead targets and any that have wandered out of lure range, restoring
+                // their vanilla AI so they don't stay frozen-alerted on our static target.
+                LuringTargets = LuringTargets.Where(target => {
+                    if (target == null || target.GetZDOID() == null || target.GetZDOID().ID == 0L) { return false; }
+                    if (Vector3.Distance(this.transform.position, target.transform.position) > ValConfig.ZapperLureRange.Value) {
+                        ReleaseLureTarget(target);
+                        return false;
+                    }
+                    return true;
+                }).ToList();
 
                 foreach (var target in LuringTargets) {
                     if (target == null) { continue; }
+
+                    // Re-assert the lure every tick. MonsterAI.UpdateTarget would otherwise
+                    // clear m_targetStatic within 2-6s; re-applying keeps the squito pathing here.
+                    MonsterAI mai = target.GetComponent<MonsterAI>();
+                    if (mai != null) {
+                        ClaimCreature(target);
+                        ForceLureTarget(mai);
+                    }
+
                     // Kill nearby tracked creatures with lightning
                     float distance = Vector3.Distance(this.transform.position, target.gameObject.transform.position);
                     //Logger.LogDebug($"{target.name} distance {distance}");
-                    if (distance < 10f) {
+                    if (distance < ValConfig.ZapperShotRange.Value) {
                         if (ZNet.instance.GetTimeSeconds() < NextAvailableShotTime) { continue; }
 
                         Logger.LogDebug($"Shock-killer at {target}");
                         // Visual at the thunderstone level
-                        UnityEngine.GameObject.Instantiate(lightningEffect, thunderStone.transform.position, thunderStone.transform.rotation);
-                        // shoot projectile?
-                        //ShootProjectile(target.transform.position);
+                        Instantiate(lightningEffect, m_thunderstone.transform.position, m_thunderstone.transform.rotation);
 
-                        // Instakill?
-                        GameObject.Instantiate(lightningEffect, target.transform.position, Quaternion.identity);
+                        // Insta-damage a target, never miss.
+                        Instantiate(lightningEffect, target.transform.position, Quaternion.identity);
                         target.Damage(lightningHit);
 
                         NextAvailableShotTime = ZNet.instance.GetTimeSeconds() + ValConfig.ZapperShotInterval.Value;
@@ -96,27 +106,57 @@ namespace DvergerSecretDefenses.PieceFeatures {
                     if (LuringTargets.Contains(character)) { continue; } // Don't need to re-add already tracked luring creatures
 
                     MonsterAI mai = character.GetComponent<MonsterAI>();
-                    if (mai.IsAggravatable()) { continue; }
+                    if (mai == null) { continue; }
 
                     Logger.LogDebug($"Luring {character} nearby.");
                     if (selfTarget == null) {
                         selfTarget = this.GetComponent<StaticTarget>();
                     }
-                    mai.m_targetStatic = selfTarget;
-                    mai.m_lastKnownTargetPos = this.transform.position;
-                    mai.m_beenAtLastPos = false;
-                    mai.SetAggravated(true, BaseAI.AggravatedReason.Building);
-                    mai.SetAlerted(true);
+
+                    // Claim the creature's ZDO so our machine runs its AI
+                    ClaimCreature(character);
+                    ForceLureTarget(mai);
                     LuringTargets.Add(character);
                 }
+            }
+        }
+
+        // Forces a monster AI to run towards this object
+        private void ForceLureTarget(MonsterAI mai) {
+            if (selfTarget == null) {
+                selfTarget = this.GetComponent<StaticTarget>();
+            }
+            mai.m_targetStatic = selfTarget;
+            mai.m_targetCreature = null;            // stop it chasing players while lured
+            mai.m_lastKnownTargetPos = this.transform.position;
+            mai.m_beenAtLastPos = false;
+            mai.SetAlerted(true);                   // self-guarded; makes MoveTo run instead of walk
+            mai.m_updateTargetTimer = 9999f;        // block UpdateTarget from clearing the assignment
+        }
+
+        // Reset creature AI if its outside of luring range
+        private void ReleaseLureTarget(Character character) {
+            if (character == null) { return; }
+            MonsterAI mai = character.GetComponent<MonsterAI>();
+            if (mai == null) { return; }
+            mai.m_updateTargetTimer = 0f;
+            if (mai.m_targetStatic == selfTarget) { mai.m_targetStatic = null; }
+        }
+
+        // Claim ownership over a creature
+        // Creature AI should run on the same zowner as the zapper to ensure that the AI changes take place
+        private void ClaimCreature(Character character) {
+            ZNetView cnview = character.GetComponent<ZNetView>();
+            if (cnview != null && cnview.IsValid() && !cnview.IsOwner()) {
+                cnview.ClaimOwnership();
             }
         }
 
         public void ShootProjectile(Vector3 target, float speed = 50f) {
 
             // Shot, spawned above the tower
-            GameObject shot = UnityEngine.Object.Instantiate<GameObject>(lightningProjectile, shotSource.transform.position, shotSource.transform.rotation);
-            Vector3 velocity = (target - shotSource.transform.position).normalized * speed;
+            GameObject shot = UnityEngine.Object.Instantiate<GameObject>(lightningProjectile, m_shotSource.transform.position, m_shotSource.transform.rotation);
+            Vector3 velocity = (target - m_shotSource.transform.position).normalized * speed;
 
             shot.GetComponent<IProjectile>()?.Setup((Character)null, velocity, 1f, lightningHit, (ItemDrop.ItemData)null, null);
         }

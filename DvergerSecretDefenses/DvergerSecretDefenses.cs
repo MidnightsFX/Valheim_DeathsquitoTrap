@@ -1,11 +1,9 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using DvergerSecretDefenses.common;
 using DvergerSecretDefenses.Common;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using PlayFab.Internal;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -45,7 +43,7 @@ namespace DvergerSecretDefenses
             DS_Electric.Prefab = "DS_ElectricTrap";
             DS_Electric.Sprite = "DS_ElectricTrap";
             DS_Electric.Workbench = "forge";
-            DS_Electric.Category = Piece.PieceCategory.Misc;
+            DS_Electric.Category = "Misc";
             DS_Electric.PieceCost = new List<JotunnPiece.PieceCost>() {
                 { new JotunnPiece.PieceCost() { prefab = "BlackMarble", amount = 25, refundable = true } },
                 { new JotunnPiece.PieceCost() { prefab = "Copper", amount = 12, refundable = true } },
