@@ -1,7 +1,13 @@
-# JötunnModStub
+# DvergerSecretDefenses
 
-A Valheim mod stub project using [Jötunn](https://github.com/Valheim-Modding/Jotunn) including build tools and a basic Unity project stub.
-There is no actual plugin content included, just a minimum plugin class. 
+A Valheim mod adding Dverger-built base defenses, built with [Jötunn](https://github.com/Valheim-Modding/Jotunn).
+
+The first piece is the **Dverger Thundercage**: a deathsquito lure and lightning turret. It baits
+deathsquitos within a 200m radius into flying at it instead of at you, then zaps anything that
+gets within 20m for 150 lightning damage. Built at the forge, under the Misc build category.
+
+Player facing documentation lives in [DvergerSecretDefenses/README.md](DvergerSecretDefenses/README.md),
+which is also what gets packaged for Thunderstore.
 
 #  Setup Guide
 
