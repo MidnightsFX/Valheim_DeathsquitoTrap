@@ -20,9 +20,6 @@ namespace DvergerSecretDefenses
 
         internal static ManualLogSource Log;
         internal ValConfig cfg;
-
-        // Use this class to add your own localization to the game
-        // https://valheim-modding.github.io/Jotunn/tutorials/localization.html
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
         public static AssetBundle EmbeddedResourceBundle;
 
