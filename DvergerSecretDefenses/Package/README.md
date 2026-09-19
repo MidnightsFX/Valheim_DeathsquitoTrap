@@ -9,7 +9,7 @@ Forget about benches and torch to prevent them to spawn, let them come, and enjo
 
 ### Dverger Thundercage
 
-![img]()
+![img](https://github.com/MidnightsFX/Valheim_DeathsquitoTrap/blob/master/media/Thundercage.png?raw=true)
 
 A buildable trap that acts as both bait and turret for deathsquitos.
 
