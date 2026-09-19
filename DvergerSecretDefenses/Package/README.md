@@ -1,29 +1,22 @@
 # DvergerSecretDefenses
 
-Dverger-built defenses for your base. Currently adds the **Dverger Thundercage**, a deathsquito
-lure and lightning turret that pulls deathsquitos out of the sky and cooks them before they
-ever reach you.
-
-## Installation (manual)
-
-1. Install [BepInEx](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) and
-   [Jötunn](https://thunderstore.io/c/valheim/p/ValheimModding/Jotunn/).
-2. Extract `DvergerSecretDefenses.dll` into `<ValheimDir>\BepInEx\plugins`.
-
-This mod must be installed by every player on a server as well as the server itself.
+Dverger-built defenses for your base. Currently adds the Dverger Thundercage, a deathsquito
+lure and lightning turret that pulls deathsquitos out of the sky and fries them before they
+ever reach you. Tired of those nasty little bugs killing you while you are just planting your barley peacefully?
+Forget about benches and torch to prevent them to spawn, let them come, and enjoy watching them die as they deserve.
 
 ## Features
 
 ### Dverger Thundercage
+
+![img]()
 
 A buildable trap that acts as both bait and turret for deathsquitos.
 
 - **Lures** — every 10 seconds it scans for deathsquitos within 200m and pulls their attention
   onto the cage instead of you. Lured squitos keep pathing towards it until they die or leave
   the lure range, at which point their normal AI is restored.
-- **Zaps** — any lured squito that closes to within 20m takes 150 lightning damage, one shot
-  per second, with a chain lightning effect off the thunderstone.
-- **Build** — crafted at the **Forge**, found under the **Misc** build category.
+- **Zaps** — any lured squito that closes to within 20m takes heavy lightning damage.
 
 | Material | Amount |
 | --- | --- |
@@ -32,7 +25,6 @@ A buildable trap that acts as both bait and turret for deathsquitos.
 | Black Metal | 12 |
 | Thunderstone | 8 |
 
-All materials are refunded when the piece is removed.
 
 ## Configuration
 
@@ -48,14 +40,11 @@ Thundercage settings are server authoritative and can be changed by admins in-ga
 
 `EnableDebugMode` is a client-side setting that turns on debug logging.
 
-## Changelog
+## Installation (manual)
 
-**0.0.1**
+1. Install [BepInEx](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) and
+   [Jötunn](https://thunderstore.io/c/valheim/p/ValheimModding/Jotunn/).
+2. Extract `DvergerSecretDefenses.dll` into `<ValheimDir>\BepInEx\plugins`.
 
-- Initial release: Dverger Thundercage deathsquito lure/turret.
+This mod must be installed by every player on a server as well as the server itself.
 
-## Known issues
-
-- Only deathsquitos are lured and targeted; other creatures ignore the cage.
-
-You can find the github at: https://github.com/MidnightsFX/Valheim_DeathsquitoTrap

@@ -1,10 +1,10 @@
 ﻿{
   "name": "DvergerSecretDefenses",
   "description": "",
-  "version_number": "0.0.1",
+  "version_number": "0.5.0",
   "website_url": "",
   "dependencies": [
-    "denikson-BepInExPack_Valheim-5.4.2333",
-    "ValheimModding-Jotunn-2.26.1"
+    "denikson-BepInExPack_Valheim-5.4.2350",
+    "ValheimModding-Jotunn-2.30.1"
   ]
 }
